@@ -1,0 +1,33 @@
+﻿<?xml version='1.0' encoding='utf-8'?>
+<SettingsFile xmlns="http://schemas.microsoft.com/VisualStudio/2004/01/settings" CurrentProfile="(Default)" GeneratedClassNamespace="UnicodeInspector.Properties" GeneratedClassName="Settings">
+  <Profiles />
+  <Settings>
+    <Setting Name="UnicodeZipFilename" Type="System.String" Scope="User">
+      <Value Profile="(Default)">Unicode.zip</Value>
+    </Setting>
+    <Setting Name="UnicodeUndefinedLabel" Type="System.String" Scope="User">
+      <Value Profile="(Default)">&lt;undefined&gt;</Value>
+    </Setting>
+    <Setting Name="UnicodeInvalidLabel" Type="System.String" Scope="User">
+      <Value Profile="(Default)">&lt;invalid&gt;</Value>
+    </Setting>
+    <Setting Name="UnicodeData" Type="System.String" Scope="User">
+      <Value Profile="(Default)">UnicodeData.txt</Value>
+    </Setting>
+    <Setting Name="Unihan_IRGSources" Type="System.String" Scope="User">
+      <Value Profile="(Default)">Unihan_IRGSources.txt</Value>
+    </Setting>
+    <Setting Name="Unihon_OtherMappings" Type="System.String" Scope="User">
+      <Value Profile="(Default)">Unihan_OtherMappings.txt</Value>
+    </Setting>
+    <Setting Name="Unihan_Variants" Type="System.String" Scope="User">
+      <Value Profile="(Default)">Unihan_Variants.txt</Value>
+    </Setting>
+    <Setting Name="OtherAttribution" Type="System.String" Scope="User">
+      <Value Profile="(Default)">Other-Han.txt</Value>
+    </Setting>
+    <Setting Name="MaxNameHists" Type="System.Int32" Scope="User">
+      <Value Profile="(Default)">400</Value>
+    </Setting>
+  </Settings>
+</SettingsFile>

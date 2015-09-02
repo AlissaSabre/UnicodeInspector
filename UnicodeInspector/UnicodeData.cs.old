@@ -1,0 +1,96 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Globalization;
+using System.IO;
+using System.IO.Compression;
+using System.Linq;
+using System.Text;
+
+namespace UnicodeInspector
+{
+    public static class UnicodeData
+    {
+        private static int[] PointValues;
+        private static string[] PointNames;
+
+        private static int[] RangeValues;
+        private static string[] RangeNames;
+
+        public static void Initialize()
+        {
+            var settings = Properties.Settings.Default;
+
+            var pv = new List<int>(settings.UnicodeWorkingTableSize);
+            var pn = new List<string>(settings.UnicodeWorkingTableSize);
+            var rv = new List<int>();
+            var rn = new List<string>();
+
+            var path = Path.Combine(Path.GetDirectoryName(typeof(UnicodeData).Assembly.Location), settings.UnicodeZipFilename);
+            using (var file = File.OpenRead(path))
+            {
+                var rd = new StreamReader(new GZipStream(file, CompressionMode.Decompress), Encoding.UTF8);
+
+                for (;;)
+                {
+                    var line = rd.ReadLine();
+                    if (line == null) break;
+
+                    if (string.IsNullOrWhiteSpace(line)) continue;
+                    if (line.StartsWith("#") || line.StartsWith(";")) continue;
+
+                    var items = line.Split(';');
+                    var code = Int32.Parse(items[0], NumberStyles.HexNumber);
+                    var name = items[1];
+                    if (name.StartsWith("<"))
+                    {
+                        if (name == "<control>")
+                        {
+                            pv.Add(code);
+                            pn.Add(name);
+                        }
+                        else if (rv.Count % 2 == 0)
+                        {
+                            // ", First>"
+                            rv.Add(code - 1);
+                            rn.Add(settings.UnicodeUndefinedLabel);
+                        }
+                        else
+                        {
+                            // ", Last>"
+                            rv.Add(code);
+                            rn.Add(name.Substring(0, name.LastIndexOf(',')) + ">");
+                        }
+                    }
+                    else
+                    {
+                        pv.Add(code);
+                        pn.Add(name);
+                    }
+                }
+            }
+
+            rv.Insert(0, -1);
+            rn.Insert(0, settings.UnicodeInvalidLabel);
+            rv.Add(0x10FFFF);
+            rn.Add(settings.UnicodeUndefinedLabel);
+
+            PointValues = pv.ToArray();
+            PointNames = pn.ToArray();
+            RangeValues = rv.ToArray();
+            RangeNames = rn.ToArray();
+        }
+
+        public static string GetName(int code)
+        {
+            int i;
+
+            i = Array.BinarySearch(PointValues, code);
+            if (i >= 0) return PointNames[i];
+
+            i = Array.BinarySearch(RangeValues, code);
+            if (i < 0) i = ~i;
+            if (i >= RangeNames.Length) i = 0;
+            return RangeNames[i];
+        }
+    }
+}

@@ -1,0 +1,139 @@
+﻿<Window x:Class="UnicodeInspector.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:a="clr-namespace:UnicodeInspector"
+        Title="{x:Static a:Localize.MainWindowTitle}" Height="450" Width="720" Loaded="Window_Loaded" Background="{DynamicResource {x:Static SystemColors.ControlBrushKey}}" Unloaded="Window_Unloaded">
+
+    <Window.Resources>
+        
+        <SolidColorBrush x:Key="SourceBackgroundBrush" Color="{DynamicResource {x:Static SystemColors.WindowColorKey}}"/>
+        <SolidColorBrush x:Key="InputCueBackgroundBrush" Color="{DynamicResource {x:Static SystemColors.InfoColorKey}}"/>
+        <SolidColorBrush x:Key="InputCueTextBrush" Color="{DynamicResource {x:Static SystemColors.InfoTextColorKey}}" Opacity="0.75"/>
+
+        <Style x:Key="AlignRight" TargetType="TextBlock">
+            <Setter Property="TextBlock.TextAlignment" Value="Right"/>
+        </Style>
+        <Style x:Key="AlignCenter" TargetType="TextBlock">
+            <Setter Property="TextBlock.TextAlignment" Value="Center"/>
+        </Style>
+
+        <ImageBrush x:Key="SplitterHandleH" Opacity="0.2" Stretch="Uniform" ImageSource="SplitterHandleH.png"/>
+        <ImageBrush x:Key="SplitterHandleV" Opacity="0.2" Stretch="Uniform" ImageSource="SplitterHandleV.png"/>
+
+    </Window.Resources>
+
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="186" MinHeight="186"/>
+            <RowDefinition/>
+        </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="300" MinWidth="240"/>
+            <ColumnDefinition Width="136" MinWidth="136"/>
+            <ColumnDefinition/>
+        </Grid.ColumnDefinitions>
+        <GridSplitter Grid.Column="1" Grid.RowSpan="2" HorizontalAlignment="Left" Margin="0,0,0,0" Width="4" ResizeDirection="Columns"  Background="{StaticResource SplitterHandleV}"/>
+        <GridSplitter Grid.Column="1" Grid.Row="1" HorizontalAlignment="Stretch" Height="4" Margin="4,0,0,0" VerticalAlignment="Top" ResizeDirection="Rows" Grid.ColumnSpan="2" Background="{StaticResource SplitterHandleH}"/>
+        <GridSplitter Grid.Column="2" HorizontalAlignment="Left" Margin="0,28,0,1" Width="4" Background="{StaticResource SplitterHandleV}"/>
+
+        <!-- Left/Upper -->
+        <Label Height="23" Margin="0,0,87,0" VerticalAlignment="Top" Background="{StaticResource InputCueBackgroundBrush}" Foreground="{StaticResource InputCueTextBrush}" VerticalContentAlignment="Center" FontSize="10">
+            <Label.Style>
+                <Style TargetType="Label">
+                    <Style.Triggers>
+                        <DataTrigger Binding="{Binding ElementName=InspectMode, Path=Text}" Value="{x:Static a:Localize.InspectModeText}">
+                            <Setter Property="Content" Value="{x:Static a:Localize.InputCueText}" />
+                        </DataTrigger>
+                        <DataTrigger Binding="{Binding ElementName=InspectMode, Path=Text}" Value="{x:Static a:Localize.InspectModeCode}">
+                            <Setter Property="Content" Value="{x:Static a:Localize.InputCueCode}" />
+                        </DataTrigger>
+                        <DataTrigger Binding="{Binding ElementName=InspectMode, Path=Text}" Value="{x:Static a:Localize.InspectModeName}">
+                            <Setter Property="Content" Value="{x:Static a:Localize.InputCueName}" />
+                        </DataTrigger>
+                    </Style.Triggers>
+                </Style>
+            </Label.Style>
+        </Label>
+        <TextBox x:Name="Source" Height="23" Margin="0,0,87,0" VerticalAlignment="Top" TextChanged="Source_TextChanged" IsUndoEnabled="False">
+            <TextBox.Style>
+                <Style TargetType="TextBox">
+                    <Setter Property="Background" Value="{DynamicResource {x:Static SystemColors.WindowBrushKey}}"/>
+                    <Style.Triggers>
+                        <Trigger Property="Text" Value="">
+                            <Setter Property="Background" Value="Transparent"/>
+                        </Trigger>
+                    </Style.Triggers>
+                </Style>
+            </TextBox.Style>
+        </TextBox>
+        <ComboBox x:Name="InspectMode" Margin="0,0,23,0" Width="64" HorizontalAlignment="Right" VerticalAlignment="Top" Height="23" SelectedIndex="0" SelectionChanged="InspectMode_SelectionChanged">
+            <ListBoxItem Content="{x:Static a:Localize.InspectModeText}"/>
+            <ListBoxItem Content="{x:Static a:Localize.InspectModeCode}"/>
+            <ListBoxItem Content="{x:Static a:Localize.InspectModeName}"/>
+        </ComboBox>
+        <Button Content="×" Margin="0,0,0,0" VerticalAlignment="Top" Height="23" HorizontalAlignment="Right" Width="23" Click="ClearButton_Click"/>
+
+        <!-- Left/Lower -->
+        <DataGrid x:Name="Summaries" Margin="0,28,0,0" Grid.RowSpan="2" AutoGenerateColumns="False" HeadersVisibility="None" GridLinesVisibility="None" SelectionMode="Single" IsReadOnly="True" Background="{DynamicResource {x:Static SystemColors.WindowBrushKey}}" SelectionChanged="Summaries_SelectionChanged" BorderBrush="{DynamicResource {x:Static SystemColors.ControlDarkBrushKey}}">
+            <DataGrid.Columns>
+                <DataGridTextColumn Binding="{Binding Orig}" MinWidth="2"/>
+                <DataGridTextColumn Binding="{Binding Text}" ElementStyle="{StaticResource AlignCenter}"/>
+                <DataGridTextColumn Binding="{Binding Code, StringFormat=X04}" ElementStyle="{StaticResource AlignRight}"/>
+                <DataGridTextColumn Binding="{Binding Name}" Width="*"/>
+            </DataGrid.Columns>
+            <DataGrid.CellStyle>
+                <Style TargetType="DataGridCell" BasedOn="{StaticResource {x:Type DataGridCell}}">
+                    <Style.Triggers>
+                        <Trigger Property="IsSelected" Value="true">
+                            <Setter Property="Foreground" Value="{DynamicResource {x:Static SystemColors.HighlightTextBrushKey}}"/>
+                            <Setter Property="Background" Value="{DynamicResource {x:Static SystemColors.HighlightBrushKey}}"/>
+                            <Setter Property="BorderBrush" Value="{DynamicResource {x:Static SystemColors.HighlightBrushKey}}"/>
+                        </Trigger>
+                    </Style.Triggers>
+                </Style>
+            </DataGrid.CellStyle>
+        </DataGrid>
+        <Label Content="{x:Static a:Localize.CharacterListHint}" Margin="0,44,0,0" HorizontalAlignment="Center" Height="28" VerticalAlignment="Top" Opacity="0.5" FontSize="10">
+            <Label.Style>
+                <Style TargetType="Label">
+                    <Setter Property="Visibility" Value="Hidden"/>
+                    <Style.Triggers>
+                        <DataTrigger Binding="{Binding ElementName=Summaries, Path=Items.Count}" Value="0">
+                            <Setter Property="Visibility" Value="Visible"/>
+                        </DataTrigger>
+                    </Style.Triggers>
+                </Style>
+            </Label.Style>
+        </Label>
+
+        <!-- Right/Top -->
+        <TextBox x:Name="Identity" Grid.Column="1" Height="23" Margin="4,0,46,0" TextWrapping="Wrap" VerticalAlignment="Top" IsReadOnly="True" IsUndoEnabled="False" BorderBrush="{DynamicResource {x:Static SystemColors.ControlDarkBrushKey}}" Grid.ColumnSpan="2"/>
+        <Button Grid.Column="2" HorizontalAlignment="Right" Margin="0,0,0,0" VerticalAlignment="Top" Width="23" Height="23">
+            <Polygon Fill="{DynamicResource {x:Static SystemColors.WindowTextBrushKey}}">
+                <Polygon.Points>
+                    <Point X="0" Y="0"/>
+                    <Point X="7" Y="4"/>
+                    <Point X ="0" Y="8"/>
+                </Polygon.Points>
+            </Polygon>
+        </Button>
+        <Button Grid.Column="2" HorizontalAlignment="Right" Margin="0,0,23,0" VerticalAlignment="Top" Width="23" Height="23" IsEnabled="True">
+            <Polygon Fill="{DynamicResource {x:Static SystemColors.WindowTextBrushKey}}">
+                <Polygon.Points>
+                    <Point X="7" Y="0"/>
+                    <Point X="0" Y="4"/>
+                    <Point X="7" Y="8"/>
+                </Polygon.Points>
+            </Polygon>
+        </Button>
+
+        <!-- Right/Middle -->
+        <TextBox x:Name="GlyphArea" Margin="4,28,0,26" Grid.Column="1" Background="{DynamicResource {x:Static SystemColors.WindowBrushKey}}" BorderBrush="{DynamicResource {x:Static SystemColors.ControlDarkBrushKey}}" IsReadOnly="True" IsUndoEnabled="False" SizeChanged="GlyphArea_SizeChanged" HorizontalContentAlignment="Center" VerticalContentAlignment="Center"/>
+        <ComboBox x:Name="FontList" Grid.Column="1" Margin="4,0,0,1" Height="24" VerticalAlignment="Bottom" SelectionChanged="FontList_SelectionChanged"/>
+        <TextBox x:Name="GlyphsInfo" Margin="4,28,0,0" TextWrapping="Wrap" Grid.Column="2" VerticalScrollBarVisibility="Auto" IsUndoEnabled="False" IsReadOnly="True" BorderBrush="{DynamicResource {x:Static SystemColors.ControlDarkBrushKey}}"/>
+
+        <!-- Right/Bottom -->
+        <TextBox x:Name="DetailedInfo" Grid.Column="1" Margin="4,4,0,0" Grid.Row="1" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Auto" IsUndoEnabled="False" IsReadOnly="True" BorderBrush="{DynamicResource {x:Static SystemColors.ControlDarkBrushKey}}" Grid.ColumnSpan="2"/>
+
+    </Grid>
+</Window>
